@@ -1,95 +1,112 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import {Box} from "@mui/system";
+import {Button, Card, Modal, TextField, Typography} from "@mui/material";
+import React, {useState} from "react";
+import {BarChart} from "@mui/x-charts";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    const [open, setOpen] = React.useState(false);
+    const [array, setArray] = useState<number[]>([]);
+    const [stringArray, setStringArray] = useState<string>("");
+    const [insertionSortArray, setInsertionSortArray] = useState<number[]>([]);
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
+
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100vw',
+                bottom: 24,
+            }}
         >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+            <TextField id="input_array" label="Input" variant="outlined" sx={{width: '60vw'}} value={stringArray}
+                       onKeyDown={handleKeyDown} onChange={handleInputChange}/>
+            <Box sx={{display: 'flex', flexDirection: 'row', width: '60vw', justifyContent: 'space-between'}}>
+                <Button variant="outlined" sx={{width: "25vw", marginY: 2}} onClick={handleArraySubmit}>Submit</Button>
+                <Button variant="contained" sx={{width: "25vw", marginY: 2}} onClick={randomArray}>Random</Button>
+            </Box>
+            <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '60vw', textAlign: 'center'}}>
+                <Card variant="outlined" sx={{width: "29vw", padding: "5px"}}>
+                    <h2>Insertion Sort</h2>
+                    <BarChart series={[{data: insertionSortArray}]} height={300}/>
+                    <Button variant="contained" onClick={handleOpen}>History</Button>
+                </Card>
+                <Card variant="outlined" sx={{width: "29vw", padding: "5px"}}>
+                    <h2>Insertion Sort</h2>
+                    <BarChart series={[{data: insertionSortArray}]} height={300}/>
+                    <Button variant="contained" onClick={handleOpen}>History</Button>
+                </Card>
+            </Box>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', borderRadius: '15px'}}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        History
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                    </Typography>
+                    <Button variant="contained" onClick={handleClose}>Close</Button>
+                </Box>
+            </Modal>
+        </Box>
+    );
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+    function handleKeyDown(event: any) {
+        if (event.key === "Enter") {
+            handleArraySubmit();
+        }
+    }
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+    function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        setStringArray(event.target.value);
+    }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    function handleArraySubmit() {
+        let newArray = stringArray.split(",").map(Number).filter(n => !isNaN(n));
+        setArray(newArray);
+        insertionSort(newArray).then(() => {
+            console.log("Insertion sort complete")
+        });
+    }
+
+    function randomArray() {
+        const array = [];
+        for (let i = 0; i < 10; i++) {
+            array.push(Math.floor(Math.random() * 100))
+        }
+        setStringArray(array.join(", "));
+    }
+
+    function sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function insertionSort(arr: number[]) {
+        let x = [...arr];
+        let n = x.length;
+        for (let i = 1; i < n; i++) {
+            let key = x[i];
+            let j = i - 1;
+            while (j >= 0 && x[j] > key) {
+                x[j + 1] = x[j];
+                j = j - 1;
+                setInsertionSortArray([...x]);
+                await sleep(500); // Adjust the delay (in milliseconds) as needed
+            }
+            x[j + 1] = key;
+            setInsertionSortArray([...x]);
+            await sleep(500); // Adjust the delay (in milliseconds) as needed
+        }
+        setInsertionSortArray([...x]);
+    }
 }

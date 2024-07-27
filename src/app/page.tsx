@@ -3,7 +3,9 @@ import {Box} from "@mui/system";
 import {Card, TextField} from "@mui/material";
 import React, {useState} from "react";
 import {LineChart} from "@mui/x-charts";
-import {Button} from "@mui/joy";
+import {Button, Slider} from "@mui/joy";
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 import randomArray from "@/app/utils/randomArray";
 import "@/app/css/main.css";
 
@@ -13,8 +15,16 @@ export default function Home() {
     const [insertionSortColor, setInsertionSortColor] = useState<string>("grey");
     const [sorting, setSorting] = useState<boolean>(false);
     const [delay, setDelay] = useState<number>(50);
+    const [items, setItems] = useState<number>(50);
 
     const numbersSymbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", " "];
+
+    const handleChangeDelay = (event: Event, newValue: number | number[]) => {
+        setDelay(newValue as number);
+    };
+    const handleChangeItems = (event: Event, newValue: number | number[]) => {
+        setItems(newValue as number);
+    };
 
     return (
         <Box
@@ -29,12 +39,32 @@ export default function Home() {
         >
             <TextField id="input_array" label="Input" variant="outlined" sx={{width: '60vw'}} value={stringArray}
                        onKeyDown={handleKeyDown} onChange={handleInputChange} disabled={sorting}/>
-            <Box sx={{display: 'flex', flexDirection: 'row', width: '60vw', justifyContent: 'space-between'}}>
-                <Button variant="outlined" sx={{width: "25vw", marginY: 2}} onClick={handleArraySubmit}
-                        disabled={sorting}>Submit</Button>
-                <Button sx={{width: "25vw", marginY: 2}} onClick={() => {
-                    setStringArray(randomArray)
-                }}>Random</Button>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: '60vw',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <Box sx={{display: 'flex', alignItems: 'right', flexDirection: 'column'}}>
+                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                        <Slider aria-label="Volume" value={items} onChange={handleChangeItems} size={"sm"}
+                                valueLabelDisplay="auto" sx={{width: 120, marginRight: 5}} disabled={sorting}/>
+                        Items: {items}
+                    </Box>
+                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                        <Slider aria-label="Volume" value={delay} onChange={handleChangeDelay} size={"sm"}
+                                valueLabelDisplay="auto" sx={{width: 120, marginRight: 5}} min={10} max={1000} disabled={sorting}/>
+                        Delay: {delay}ms
+                    </Box>
+                </Box>
+                <Box>
+                    <Button sx={{marginY: 2, marginX: 1}} onClick={() => {
+                        setStringArray(randomArray)
+                    }}><ShuffleIcon/></Button>
+                    <Button variant="outlined" sx={{marginY: 2}} onClick={handleArraySubmit}
+                            disabled={sorting}><PlayCircleOutlineIcon/></Button>
+                </Box>
             </Box>
             <Box sx={{
                 display: 'flex',
@@ -78,6 +108,14 @@ export default function Home() {
                 event.preventDefault();
             }
         }
+    }
+
+    function randomArray() {
+        const array = [];
+        for (let i = 0; i < items; i++) {
+            array.push(Math.floor(Math.random() * 1000))
+        }
+        return array.join(", ");
     }
 
     function getDelay() {

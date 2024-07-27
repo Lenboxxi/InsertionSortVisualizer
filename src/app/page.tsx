@@ -1,18 +1,20 @@
 "use client";
 import {Box} from "@mui/system";
-import {Button, Card, Modal, TextField, Typography} from "@mui/material";
+import {Card, TextField} from "@mui/material";
 import React, {useState} from "react";
-import {BarChart} from "@mui/x-charts";
+import {LineChart} from "@mui/x-charts";
+import {Button} from "@mui/joy";
+import randomArray from "@/app/utils/randomArray";
+import "@/app/css/main.css";
 
 export default function Home() {
-    const [open, setOpen] = React.useState(false);
-    const [array, setArray] = useState<number[]>([]);
     const [stringArray, setStringArray] = useState<string>("");
     const [insertionSortArray, setInsertionSortArray] = useState<number[]>([]);
+    const [insertionSortColor, setInsertionSortColor] = useState<string>("grey");
+    const [sorting, setSorting] = useState<boolean>(false);
+    const [delay, setDelay] = useState<number>(50);
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
+    const numbersSymbols = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", " "];
 
     return (
         <Box
@@ -22,76 +24,72 @@ export default function Home() {
                 alignItems: 'center',
                 width: '100vw',
                 bottom: 24,
+                marginTop: 10
             }}
         >
             <TextField id="input_array" label="Input" variant="outlined" sx={{width: '60vw'}} value={stringArray}
-                       onKeyDown={handleKeyDown} onChange={handleInputChange}/>
+                       onKeyDown={handleKeyDown} onChange={handleInputChange} disabled={sorting}/>
             <Box sx={{display: 'flex', flexDirection: 'row', width: '60vw', justifyContent: 'space-between'}}>
-                <Button variant="outlined" sx={{width: "25vw", marginY: 2}} onClick={handleArraySubmit}>Submit</Button>
-                <Button variant="contained" sx={{width: "25vw", marginY: 2}} onClick={randomArray}>Random</Button>
+                <Button variant="outlined" sx={{width: "25vw", marginY: 2}} onClick={handleArraySubmit}
+                        disabled={sorting}>Submit</Button>
+                <Button sx={{width: "25vw", marginY: 2}} onClick={() => {
+                    setStringArray(randomArray)
+                }}>Random</Button>
             </Box>
-            <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '60vw', textAlign: 'center'}}>
-                <Card variant="outlined" sx={{width: "29vw", padding: "5px"}}>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '60vw',
+                textAlign: 'center'
+            }}>
+                <Card variant="outlined" sx={{width: "60vw", padding: "5px"}}>
                     <h2>Insertion Sort</h2>
-                    <BarChart series={[{data: insertionSortArray}]} height={300}/>
-                    <Button variant="contained" onClick={handleOpen}>History</Button>
-                </Card>
-                <Card variant="outlined" sx={{width: "29vw", padding: "5px"}}>
-                    <h2>Insertion Sort</h2>
-                    <BarChart series={[{data: insertionSortArray}]} height={300}/>
-                    <Button variant="contained" onClick={handleOpen}>History</Button>
+                    <LineChart series={[{data: insertionSortArray, color: insertionSortColor}]} height={300}
+                               grid={{vertical: true, horizontal: true}}/>
                 </Card>
             </Box>
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', borderRadius: '15px'}}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        History
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                    </Typography>
-                    <Button variant="contained" onClick={handleClose}>Close</Button>
-                </Box>
-            </Modal>
         </Box>
     );
-
-    function handleKeyDown(event: any) {
-        if (event.key === "Enter") {
-            handleArraySubmit();
-        }
-    }
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setStringArray(event.target.value);
     }
 
     function handleArraySubmit() {
-        let newArray = stringArray.split(",").map(Number).filter(n => !isNaN(n));
-        setArray(newArray);
-        insertionSort(newArray).then(() => {
-            console.log("Insertion sort complete")
-        });
-    }
-
-    function randomArray() {
-        const array = [];
-        for (let i = 0; i < 10; i++) {
-            array.push(Math.floor(Math.random() * 100))
+        if (!sorting) {
+            setSorting(true);
+            let newArray = stringArray.split(",").map(Number).filter(n => !isNaN(n));
+            setInsertionSortColor("grey");
+            insertionSort(newArray).then(() => {
+                console.log("Insertion sort complete")
+            });
         }
-        setStringArray(array.join(", "));
     }
 
-    function sleep(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    function handleKeyDown(event: any) {
+        if (!numbersSymbols.includes(event.key) && (event.key !== "Enter") && (event.key !== "Backspace")) {
+            event.preventDefault();
+        }
+        if (event.key === "Enter") {
+            handleArraySubmit();
+        } else {
+            if (!numbersSymbols.includes(event.key) && (event.key !== "Backspace")) {
+                event.preventDefault();
+            }
+        }
+    }
+
+    function getDelay() {
+        return delay;
+    }
+
+    function sleep() {
+        return new Promise(resolve => setTimeout(resolve, getDelay()));
     }
 
     async function insertionSort(arr: number[]) {
+        const steps: number[][] = [];
         let x = [...arr];
         let n = x.length;
         for (let i = 1; i < n; i++) {
@@ -101,12 +99,16 @@ export default function Home() {
                 x[j + 1] = x[j];
                 j = j - 1;
                 setInsertionSortArray([...x]);
-                await sleep(500); // Adjust the delay (in milliseconds) as needed
+                steps.push([...x]);
+                await sleep(); // Adjust the delay (in milliseconds) as needed
             }
             x[j + 1] = key;
             setInsertionSortArray([...x]);
-            await sleep(500); // Adjust the delay (in milliseconds) as needed
+            steps.push([...x]);
+            await sleep(); // Adjust the delay (in milliseconds) as needed
         }
         setInsertionSortArray([...x]);
+        setInsertionSortColor("green");
+        setSorting(false);
     }
 }

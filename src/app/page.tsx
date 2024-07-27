@@ -60,7 +60,7 @@ export default function Home() {
                 <Box>
                     <Button variant="outlined" sx={{marginY: 2, marginX: 1}} onClick={() => {
                         setStringArray(randomArray)
-                    }}><ShuffleIcon/></Button>
+                    }} disabled={sorting}><ShuffleIcon/></Button>
                     <Button sx={{marginY: 2}} onClick={handleArraySubmit}
                             disabled={sorting}><PlayCircleOutlineIcon/></Button>
                 </Box>

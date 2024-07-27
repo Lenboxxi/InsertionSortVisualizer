@@ -6,11 +6,10 @@ import {LineChart} from "@mui/x-charts";
 import {Button, Slider} from "@mui/joy";
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
-import randomArray from "@/app/utils/randomArray";
 import "@/app/css/main.css";
 
 export default function Home() {
-    const [stringArray, setStringArray] = useState<string>("");
+    const [stringArray, setStringArray] = useState<string>("9,8,7,6,5,4,3,2,1,0");
     const [insertionSortArray, setInsertionSortArray] = useState<number[]>([]);
     const [insertionSortColor, setInsertionSortColor] = useState<string>("grey");
     const [sorting, setSorting] = useState<boolean>(false);
@@ -59,10 +58,10 @@ export default function Home() {
                     </Box>
                 </Box>
                 <Box>
-                    <Button sx={{marginY: 2, marginX: 1}} onClick={() => {
+                    <Button variant="outlined" sx={{marginY: 2, marginX: 1}} onClick={() => {
                         setStringArray(randomArray)
                     }}><ShuffleIcon/></Button>
-                    <Button variant="outlined" sx={{marginY: 2}} onClick={handleArraySubmit}
+                    <Button sx={{marginY: 2}} onClick={handleArraySubmit}
                             disabled={sorting}><PlayCircleOutlineIcon/></Button>
                 </Box>
             </Box>
